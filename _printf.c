@@ -1,48 +1,50 @@
 #include "main.h"
 
 /**
- * _printf - produces output according to a format
- * @format: format string containing the characters and the specifiers
- * Description: this function will call the get_print() function that will
- * determine which printing function to call depending on the conversion
- * specifiers contained into fmt
- * Return: length of the formatted output string
+ * _printf - prints formatted data to stdout
+ * @format: string that contains the format to print
+ * Return: number of characters written
  */
-int _printf(const char *format, ...)
+int _printf(char *format, ...)
 {
-    int (*pfunc)(va_list, flags_t *);
-    const char *p;
-    va_list arguments;
-    flags_t flags = {0, 0, 0};
+	int written = 0, (*print_fn)(char *, va_list);
+	char specifier[3];
+	va_list args;
 
-    register int count = 0;
-
-    va_start(arguments, format);
-    if (!format || (format[0] == '%' && !format[1]))
-        return (-1);
-    if (format[0] == '%' && format[1] == ' ' && !format[2])
-        return (-1);
-    for (p = format; *p; p++)
-    {
-        if (*p == '%')
-        {
-            p++;
-            if (*p == '%')
-            {
-                count += _putchar('%');
-                continue;
-            }
-            while (get_flag(*p, &flags))
-                p++;
-            pfunc = get_print(*p);
-            count += (pfunc)
-                         ? pfunc(arguments, &flags)
-                         : _printf("%%%c", *p);
-        }
-        else
-            count += _putchar(*p);
-    }
-    _putchar(-1);
-    va_end(arguments);
-    return (count);
+	if (format == NULL)
+		return (-1);
+	specifier[2] = '\0';
+	va_start(args, format);
+	_putchar(-1);
+	while (format[0])
+	{
+		if (format[0] == '%')
+		{
+			print_fn = get_print_fn(format);
+			if (print_fn)
+			{
+				specifier[0] = '%';
+				specifier[1] = format[1];
+				written += print_fn(specifier, args);
+			}
+			else if (format[1] != '\0')
+			{
+				written += _putchar('%');
+				written += _putchar(format[1]);
+			}
+			else
+			{
+				written += _putchar('%');
+				break;
+			}
+			format += 2;
+		}
+		else
+		{
+			written += _putchar(format[0]);
+			format++;
+		}
+	}
+	_putchar(-2);
+	return (written);
 }
