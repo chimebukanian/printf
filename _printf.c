@@ -1,50 +1,49 @@
-#include "main.h"
+#include "holberton.h"
 
 /**
- * _printf - prints formatted data to stdout
- * @format: string that contains the format to print
- * Return: number of characters written
+ * _printf - prints anything
+ * @format: the format string
+ *
+ * Return: number of bytes printed
  */
 int _printf(char *format, ...)
 {
-	int written = 0, (*print_fn)(char *, va_list);
-	char specifier[3];
-	va_list args;
+	int sum = 0;
+	va_list ap;
+	char *p, *start;
+	params_t params = PARAMS_INIT;
 
-	if (format == NULL)
+	va_start(ap, format);
+
+	if (!format || (format[0] == '%' && !format[1]))
 		return (-1);
-	specifier[2] = '\0';
-	va_start(args, format);
-	_putchar(-1);
-	while (format[0])
+	if (format[0] == '%' && format[1] == ' ' && !format[2])
+		return (-1);
+	for (p = (char *)format; *p; p++)
 	{
-		if (format[0] == '%')
+		init_params(&params, ap);
+		if (*p != '%')
 		{
-			print_fn = get_print_fn(format);
-			if (print_fn)
-			{
-				specifier[0] = '%';
-				specifier[1] = format[1];
-				written += print_fn(specifier, args);
-			}
-			else if (format[1] != '\0')
-			{
-				written += _putchar('%');
-				written += _putchar(format[1]);
-			}
-			else
-			{
-				written += _putchar('%');
-				break;
-			}
-			format += 2;
+			sum += _putchar(*p);
+			continue;
 		}
+		start = p;
+		p++;
+		while (get_flag(p, &params)) /* while char at p is flag char */
+		{
+			p++; /* next char */
+		}
+		p = get_width(p, &params, ap);
+		p = get_precision(p, &params, ap);
+		if (get_modifier(p, &params))
+			p++;
+		if (!get_specifier(p))
+			sum += print_from_to(start, p,
+				params.l_modifier || params.h_modifier ? p - 1 : 0);
 		else
-		{
-			written += _putchar(format[0]);
-			format++;
-		}
+			sum += get_print_func(p, ap, &params);
 	}
-	_putchar(-2);
-	return (written);
+	_putchar(BUF_FLUSH);
+	va_end(ap);
+	return (sum);
 }
