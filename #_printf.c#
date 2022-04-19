@@ -1,4 +1,14 @@
-#include "main.h"
+
+
+
+
+
+
+
+
+
+
+11;rgb:0000/0000/0000#include "main.h"
 
 /**
  * _printf - prints anything
@@ -6,7 +16,7 @@
  *
  * Return: number of bytes printed
  */
-int _printf(char *format, ...)
+int _printf(const char *format, ...)
 {
 	int sum = 0;
 	va_list ap;
