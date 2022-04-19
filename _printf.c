@@ -6,7 +6,7 @@
  *
  * Return: number of bytes printed
  */
-int _printf(char *format, ...)
+int _printf(const char *format, ...)
 {
 	int sum = 0;
 	va_list ap;
